@@ -1,0 +1,121 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: rabbitmq-demo-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: rabbitmq-demo
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - microservices-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq-demo-mq
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - microservices-network
+
+  redis:
+    image: redis:7
+    container_name: rabbitmq-demo-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - microservices-network
+
+  gateway:
+    build:
+      context: ./backend
+      args:
+        APP_NAME: gateway
+    ports:
+      - "3000:3000"
+    environment:
+      - DB_HOST=postgres
+      - RABBITMQ_URL=amqp://user:password@rabbitmq:5672
+      - REDIS_HOST=redis
+      - AUTH_GRPC_URL=auth:50051
+      - USERS_GRPC_URL=users:50052
+    depends_on:
+      - postgres
+      - rabbitmq
+      - redis
+    networks:
+      - microservices-network
+
+  auth:
+    build:
+      context: ./backend
+      args:
+        APP_NAME: auth
+    environment:
+      - DB_HOST=postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=rabbitmq-demo
+    depends_on:
+      - postgres
+    networks:
+      - microservices-network
+    expose:
+      - "50051"
+
+  users:
+    build:
+      context: ./backend
+      args:
+        APP_NAME: users
+    environment:
+      - RABBITMQ_URL=amqp://user:password@rabbitmq:5672
+    depends_on:
+      - rabbitmq
+    networks:
+      - microservices-network
+    expose:
+      - "50052"
+
+  notifications:
+    build:
+      context: ./backend
+      args:
+        APP_NAME: notifications
+    environment:
+      - RABBITMQ_URL=amqp://user:password@rabbitmq:5672
+    depends_on:
+      - rabbitmq
+    networks:
+      - microservices-network
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "3001:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:3000
+    depends_on:
+      - gateway
+    networks:
+      - microservices-network
+
+networks:
+  microservices-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

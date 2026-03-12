@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package auth;
+
+service AuthService {
+  rpc ValidateUser (ValidateUserRequest) returns (ValidateUserResponse);
+  rpc CreateUser (CreateUserRequest) returns (CreateUserResponse);
+  rpc CreateTenant (CreateTenantRequest) returns (CreateTenantResponse);
+  rpc Login (LoginRequest) returns (LoginResponse);
+}
+
+message LoginRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  string accessToken = 1;
+  string userId = 2;
+  string tenantId = 3;
+}
+
+message ValidateUserRequest {
+  string token = 1;
+}
+
+message ValidateUserResponse {
+  bool valid = 1;
+  string userId = 2;
+  string tenantId = 3;
+}
+
+message CreateUserRequest {
+  string email = 1;
+  string password = 2;
+  string tenantId = 3;
+}
+
+message CreateUserResponse {
+  string userId = 1;
+  string email = 2;
+  string tenantId = 3;
+}
+
+message CreateTenantRequest {
+  string name = 1;
+}
+
+message CreateTenantResponse {
+  string id = 1;
+  string name = 2;
+}
