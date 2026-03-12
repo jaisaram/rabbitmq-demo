@@ -63,11 +63,14 @@ services:
       context: ./backend
       args:
         APP_NAME: auth
+    ports:
+      - "3001:3001"
     environment:
       - DB_HOST=postgres
       - DB_USER=postgres
       - DB_PASSWORD=postgres
       - DB_NAME=rabbitmq-demo
+      - JWT_SECRET=super-secret
     depends_on:
       - postgres
     networks:
@@ -80,9 +83,16 @@ services:
       context: ./backend
       args:
         APP_NAME: users
+    ports:
+      - "3002:3002"
     environment:
+      - DB_HOST=postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=rabbitmq-demo
       - RABBITMQ_URL=amqp://user:password@rabbitmq:5672
     depends_on:
+      - postgres
       - rabbitmq
     networks:
       - microservices-network
@@ -94,7 +104,25 @@ services:
       context: ./backend
       args:
         APP_NAME: notifications
+    ports:
+      - "3003:3003"
     environment:
+      - RABBITMQ_URL=amqp://user:password@rabbitmq:5672
+    depends_on:
+      - rabbitmq
+    networks:
+      - microservices-network
+
+  logs:
+    build:
+      context: ./backend
+      args:
+        APP_NAME: logs
+    ports:
+      - "3004:3004"
+    environment:
+      - APP_NAME=logs
+      - NODE_ENV=development
       - RABBITMQ_URL=amqp://user:password@rabbitmq:5672
     depends_on:
       - rabbitmq
@@ -105,7 +133,7 @@ services:
     build:
       context: ./frontend
     ports:
-      - "3001:3000"
+      - "3005:3000"
     environment:
       - NEXT_PUBLIC_API_URL=http://localhost:3000
     depends_on:

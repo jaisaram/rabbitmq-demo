@@ -5,6 +5,16 @@ package users;
 service UsersService {
   rpc GetUser (GetUserRequest) returns (GetUserResponse);
   rpc CreateUser (CreateUserRequest) returns (CreateUserResponse);
+  rpc UpdateProfile (UpdateProfileRequest) returns (UpdateProfileResponse);
+  rpc ListUsers (ListUsersRequest) returns (ListUsersResponse);
+}
+
+message ListUsersRequest {
+  string tenantId = 1;
+}
+
+message ListUsersResponse {
+  repeated GetUserResponse users = 1;
 }
 
 message GetUserRequest {
@@ -16,6 +26,9 @@ message GetUserResponse {
   string id = 1;
   string email = 2;
   string tenantId = 3;
+  string firstName = 4;
+  string lastName = 5;
+  string avatarUrl = 6;
 }
 
 message CreateUserRequest {
@@ -28,4 +41,17 @@ message CreateUserResponse {
   string userId = 1;
   string email = 2;
   string tenantId = 3;
+}
+
+message UpdateProfileRequest {
+  string userId = 1;
+  string tenantId = 2;
+  string firstName = 3;
+  string lastName = 4;
+  string avatarUrl = 5;
+}
+
+message UpdateProfileResponse {
+  bool success = 1;
+  string userId = 2;
 }

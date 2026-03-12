@@ -8,6 +8,12 @@ export class Tenant {
     @Column({ unique: true })
     name: string;
 
+    @Column({ unique: true })
+    slug: string;
+
     @Column({ default: 'active' })
     status: string;
+
+    @Column({ type: 'jsonb', default: {} })
+    settings: any;
 }

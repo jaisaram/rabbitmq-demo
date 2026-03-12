@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package batch;
+
+service BatchService {
+  rpc ProcessBulkData (ProcessBulkDataRequest) returns (ProcessBulkDataResponse);
+  rpc GetJobStatus (GetJobStatusRequest) returns (GetJobStatusResponse);
+}
+
+message ProcessBulkDataRequest {
+  string tenantId = 1;
+  int32 recordCount = 2; // e.g., 1000000
+  string jobType = 3;
+}
+
+message ProcessBulkDataResponse {
+  string jobId = 1;
+  string status = 2;
+}
+
+message GetJobStatusRequest {
+  string jobId = 1;
+}
+
+message GetJobStatusResponse {
+  string jobId = 1;
+  string status = 2;
+  int32 processedCount = 3;
+  int32 totalCount = 4;
+  float percentage = 5;
+}

@@ -5,12 +5,14 @@ COPY package*.json ./
 RUN npm install --legacy-peer-deps
 COPY . .
 
-# Build stage - Use tsc directly with standard outDir
+# Build stage
 FROM base AS build
-RUN npx tsc -p apps/gateway/tsconfig.app.json
-RUN npx tsc -p apps/auth/tsconfig.app.json
-RUN npx tsc -p apps/users/tsconfig.app.json
-RUN npx tsc -p apps/notifications/tsconfig.app.json
+RUN npm install -g @nestjs/cli
+RUN npm run build gateway
+RUN npm run build auth
+RUN npm run build users
+RUN npm run build notifications
+RUN npm run build logs
 
 # Production stage
 FROM node:20-alpine AS production

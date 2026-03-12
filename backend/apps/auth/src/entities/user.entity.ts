@@ -13,4 +13,13 @@ export class User {
 
     @Column()
     tenantId: string;
+
+    @Column({ default: 'USER' })
+    role: string;
+
+    @Column({ default: false })
+    isDefaultAdmin: boolean;
+
+    @Column({ default: 0 })
+    tokenVersion: number;
 }

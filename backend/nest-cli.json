@@ -3,8 +3,7 @@
   "collection": "@nestjs/schematics",
   "monorepo": true,
   "compilerOptions": {
-    "deleteOutDir": true,
-    "webpack": true
+    "deleteOutDir": false
   },
   "defaultLibraryPrefix": "@common",
   "projects": {
@@ -42,6 +41,24 @@
       "sourceRoot": "apps/notifications/src",
       "compilerOptions": {
         "tsConfigPath": "apps/notifications/tsconfig.app.json"
+      }
+    },
+    "logs": {
+      "type": "application",
+      "root": "apps/logs",
+      "entryFile": "main",
+      "sourceRoot": "apps/logs/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/logs/tsconfig.app.json"
+      }
+    },
+    "batch": {
+      "type": "application",
+      "root": "apps/batch",
+      "entryFile": "main",
+      "sourceRoot": "apps/batch/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/batch/tsconfig.app.json"
       }
     },
     "common": {

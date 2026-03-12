@@ -3,21 +3,54 @@ syntax = "proto3";
 package auth;
 
 service AuthService {
+  rpc SystemAdminLogin (SystemAdminLoginRequest) returns (SystemAdminLoginResponse);
+  rpc TenantLogin (TenantLoginRequest) returns (TenantLoginResponse);
+  rpc ValidateTenantSlug (ValidateTenantSlugRequest) returns (ValidateTenantSlugResponse);
   rpc ValidateUser (ValidateUserRequest) returns (ValidateUserResponse);
   rpc CreateUser (CreateUserRequest) returns (CreateUserResponse);
   rpc CreateTenant (CreateTenantRequest) returns (CreateTenantResponse);
-  rpc Login (LoginRequest) returns (LoginResponse);
+  rpc GetTenantSettings (GetTenantSettingsRequest) returns (GetTenantSettingsResponse);
+  rpc UpdateTenantSettings (UpdateTenantSettingsRequest) returns (UpdateTenantSettingsResponse);
+  rpc ListTenants (ListTenantsRequest) returns (ListTenantsResponse);
+  rpc UpdateTenant (UpdateTenantRequest) returns (UpdateTenantResponse);
+  rpc DeleteUser (DeleteUserRequest) returns (DeleteUserResponse);
+  rpc ListUsersByTenant (ListUsersByTenantRequest) returns (ListUsersByTenantResponse);
+  rpc Logout (LogoutRequest) returns (LogoutResponse);
 }
 
-message LoginRequest {
+message SystemAdminLoginRequest {
   string email = 1;
   string password = 2;
 }
 
-message LoginResponse {
+message SystemAdminLoginResponse {
+  string accessToken = 1;
+  string adminId = 2;
+  bool isSuper = 3;
+}
+
+message TenantLoginRequest {
+  string tenantName = 1;
+  string slug = 2;
+  string email = 3;
+  string password = 4;
+}
+
+message TenantLoginResponse {
   string accessToken = 1;
   string userId = 2;
   string tenantId = 3;
+  string slug = 4;
+}
+
+message ValidateTenantSlugRequest {
+  string slug = 1;
+}
+
+message ValidateTenantSlugResponse {
+  bool valid = 1;
+  string tenantId = 2;
+  string name = 3;
 }
 
 message ValidateUserRequest {
@@ -28,6 +61,9 @@ message ValidateUserResponse {
   bool valid = 1;
   string userId = 2;
   string tenantId = 3;
+  string role = 4;
+  bool isDefaultAdmin = 5;
+  bool isSystemAdmin = 6;
 }
 
 message CreateUserRequest {
@@ -44,9 +80,87 @@ message CreateUserResponse {
 
 message CreateTenantRequest {
   string name = 1;
+  string slug = 2;
+  string adminEmail = 3;
+  string adminPassword = 4;
 }
 
 message CreateTenantResponse {
   string id = 1;
   string name = 2;
+}
+
+message GetTenantSettingsRequest {
+  string tenantId = 1;
+}
+
+message GetTenantSettingsResponse {
+  string settingsJson = 1;
+}
+
+message UpdateTenantSettingsRequest {
+  string tenantId = 1;
+  string settingsJson = 2;
+}
+
+message UpdateTenantSettingsResponse {
+  bool success = 1;
+  string settingsJson = 2;
+}
+
+message TenantInfo {
+  string id = 1;
+  string name = 2;
+  string slug = 3;
+  string status = 4;
+}
+
+message ListTenantsRequest {}
+
+message ListTenantsResponse {
+  repeated TenantInfo tenants = 1;
+}
+
+message UpdateTenantRequest {
+  string id = 1;
+  string name = 2;
+  string status = 3;
+}
+
+message UpdateTenantResponse {
+  bool success = 1;
+  TenantInfo tenant = 2;
+}
+
+
+message DeleteUserRequest {
+  string userId = 1;
+}
+
+message DeleteUserResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message ListUsersByTenantRequest {
+  string tenantId = 1;
+}
+
+message AuthUserInfo {
+  string id = 1;
+  string email = 2;
+  string role = 3;
+  bool isDefaultAdmin = 4;
+}
+
+message ListUsersByTenantResponse {
+  repeated AuthUserInfo users = 1;
+}
+
+message LogoutRequest {
+  string userId = 1;
+}
+
+message LogoutResponse {
+  bool success = 1;
 }

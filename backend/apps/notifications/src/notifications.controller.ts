@@ -8,7 +8,8 @@ export class NotificationsController {
 
   @EventPattern('user_fetched')
   async handleUserFetched(@Payload() data: any) {
-    console.log('Notification received for user_fetched event:', data);
-    this.notificationsService.processNotification(data);
+    const correlationId = data.headers?.['x-correlation-id'];
+    console.log(`Notification service received user_fetched event for user ${data.data?.userId} with correlation: ${correlationId}`);
+    this.notificationsService.processNotification(data.data || data);
   }
 }

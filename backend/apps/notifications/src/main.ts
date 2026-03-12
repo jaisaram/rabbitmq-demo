@@ -1,22 +1,29 @@
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { Logger } from 'nestjs-pino';
 import { NotificationsModule } from './notifications.module';
 
+import { ConfigService } from '@nestjs/config';
+
 async function bootstrap() {
-  const app = await NestFactory.createMicroservice<MicroserviceOptions>(
-    NotificationsModule,
-    {
-      transport: Transport.RMQ,
-      options: {
-        urls: [process.env.RABBITMQ_URL || 'amqp://user:password@localhost:5672'],
-        queue: 'notifications_queue',
-        queueOptions: {
-          durable: false,
-        },
+  const app = await NestFactory.create(NotificationsModule);
+  const configService = app.get(ConfigService);
+
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.RMQ,
+    options: {
+      urls: [configService.get<string>('RABBITMQ_URL', 'amqp://guest:guest@localhost:5672')],
+      queue: 'notifications_queue',
+      queueOptions: {
+        durable: false,
       },
     },
-  );
-  await app.listen();
-  console.log('Notifications microservice is listening for RabbitMQ events');
+  });
+
+  app.useLogger(app.get(Logger));
+  await app.startAllMicroservices();
+  const port = process.env.NOTIFICATIONS_PORT || 5004;
+  await app.listen(port);
+  console.log(`Notifications microservice is running. RMQ Consumer active, HTTP (Health): ${port}`);
 }
 bootstrap();

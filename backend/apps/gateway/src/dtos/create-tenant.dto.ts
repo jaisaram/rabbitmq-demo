@@ -5,4 +5,18 @@ export class CreateTenantDto {
   @IsNotEmpty()
   @MinLength(3)
   name: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(3)
+  slug: string;
+
+  @IsString()
+  @IsNotEmpty()
+  adminEmail: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(6)
+  adminPassword: string;
 }

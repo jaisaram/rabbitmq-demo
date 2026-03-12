@@ -12,12 +12,13 @@ export class TenantInterceptor implements NestInterceptor {
     intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
         const request = context.switchToHttp().getRequest();
         const tenantId = request.headers['x-tenant-id'];
+        const slug = request.params.slug;
 
-        if (!tenantId) {
-            throw new BadRequestException('x-tenant-id header is required');
+        if (!tenantId && !slug) {
+            throw new BadRequestException('tenant identity (header x-tenant-id or URL slug) is required');
         }
 
-        request['tenantId'] = tenantId;
+        request['tenantId'] = tenantId || slug;
         return next.handle();
     }
 }

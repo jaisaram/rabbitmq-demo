@@ -26,6 +26,38 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
+## 🛠️ Local Development (Windows)
+
+To run the project manually on Windows (avoiding slow Docker containers for code), follow these steps:
+
+### 1. Prerequisites
+- **PostgreSQL**: Install and ensure it's running on port `5432`.
+- **RabbitMQ**: Install and ensure it's running on port `5672`.
+- **Docker**: Only needed for Redis.
+
+### 2. Start Redis (Docker)
+From the root directory:
+```bash
+docker compose -f docker-compose.dev.yml up -d
+```
+
+### 3. Backend Services
+Open **5 separate terminals** in the `backend` directory and run:
+
+- **Gateway**: `npm run start:dev gateway` (Main entry point)
+- **Auth**: `npm run start:dev auth`
+- **Users**: `npm run start:dev users`
+- **Notifications**: `npm run start:dev notifications`
+- **Logs**: `npm run start:dev logs`
+
+### 4. Frontend Service
+Open one terminal in the `frontend` directory and run:
+```bash
+npm run dev
+```
+
+---
+
 ## Project setup
 
 ```bash

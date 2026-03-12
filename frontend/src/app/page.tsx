@@ -1,286 +1,95 @@
 'use client';
 
-import { useState } from 'react';
+import Link from 'next/link';
+import { Button } from '@/components/ui/Button';
 
-export default function Home() {
-  const [tenantId, setTenantId] = useState('tenant-a');
-  const [loginEmail, setLoginEmail] = useState('');
-  const [loginPassword, setLoginPassword] = useState('');
-  const [token, setToken] = useState<string | null>(null);
-  const [regEmail, setRegEmail] = useState('');
-  const [regPassword, setRegPassword] = useState('');
-  const [regTenantId, setRegTenantId] = useState('tenant-a');
-  const [newTenantName, setNewTenantName] = useState('');
-  const [result, setResult] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
-
-  const fetchWithAuth = async (url: string, options: any = {}) => {
-    const headers = {
-      ...options.headers,
-      'Authorization': `Bearer ${token}`,
-    };
-    return fetch(url, { ...options, headers });
-  };
-
-  const testApi = async () => {
-    setLoading(true);
-    try {
-      const res = await fetchWithAuth(`http://localhost:3000/users/${userId}`, {
-        headers: {
-          'x-tenant-id': tenantId,
-        },
-      });
-      const data = await res.json();
-      setResult(data);
-    } catch (error) {
-      setResult({ error: 'Failed to fetch from API Gateway' });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const registerUser = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch(`http://localhost:3000/users/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: regEmail, password: regPassword, tenantId: regTenantId }),
-      });
-      const data = await res.json();
-      setResult({ message: 'User registered successfully!', ...data });
-    } catch (error) {
-      setResult({ error: 'Failed to register user' });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const createTenant = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch(`http://localhost:3000/users/tenants`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: newTenantName }),
-      });
-      const data = await res.json();
-      setResult({ message: 'Tenant created successfully!', ...data });
-    } catch (error) {
-      setResult({ error: 'Failed to create tenant' });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const loginUser = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch(`http://localhost:3000/users/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: loginEmail, password: loginPassword }),
-      });
-      const data = await res.json();
-      if (data.accessToken) {
-        setToken(data.accessToken);
-        setResult({ message: 'Logged in successfully!', ...data });
-      } else {
-        setResult({ error: 'Login failed', ...data });
-      }
-    } catch (error) {
-      setResult({ error: 'Failed to login' });
-    } finally {
-      setLoading(false);
-    }
-  };
-
+export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-8">
-      <div className="max-w-4xl mx-auto">
-        <header className="mb-12">
-          <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
-            Microservices Dashboard
+    <div className="min-h-screen bg-slate-50 text-slate-900 selection:bg-blue-500/20">
+      {/* Dynamic Background Elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-blue-400/10 blur-[120px] rounded-full animate-pulse"></div>
+        <div className="absolute top-[20%] -right-[10%] w-[35%] h-[35%] bg-emerald-400/5 blur-[120px] rounded-full animate-pulse delay-700"></div>
+        <div className="absolute -bottom-[10%] left-[20%] w-[30%] h-[30%] bg-purple-400/5 blur-[120px] rounded-full animate-pulse delay-1000"></div>
+      </div>
+
+      <div className="relative z-10 max-w-7xl mx-auto px-6 py-20 flex flex-col items-center justify-center min-h-screen">
+        {/* Hero Section */}
+        <div className="text-center mb-20 space-y-6">
+          <div className="inline-block px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold uppercase tracking-widest mb-4 animate-bounce">
+            Next-Gen Infrastructure
+          </div>
+          <h1 className="text-6xl md:text-8xl font-black tracking-tighter leading-none mb-6">
+            <span className="bg-clip-text text-transparent bg-gradient-to-b from-slate-900 to-slate-500 uppercase">
+              Scale System
+            </span>
+            <br />
+            <span className="text-blue-600 underline decoration-blue-500/30 underline-offset-8 uppercase">Microservices</span>
           </h1>
-          <p className="text-gray-400">RabbitMQ + gRPC + NestJS + Multi-tenant</p>
-        </header>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="bg-gray-800 p-6 rounded-xl border border-gray-700">
-            <h2 className="text-xl font-semibold mb-4 text-blue-400">Authentication</h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Email</label>
-                <input
-                  type="email"
-                  value={loginEmail}
-                  onChange={(e) => setLoginEmail(e.target.value)}
-                  className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
-                  placeholder="admin@example.com"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Password</label>
-                <input
-                  type="password"
-                  value={loginPassword}
-                  onChange={(e) => setLoginPassword(e.target.value)}
-                  className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
-                  placeholder="••••••••"
-                />
-              </div>
-              <button
-                onClick={loginUser}
-                disabled={loading}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors disabled:opacity-50"
-              >
-                {loading ? 'Logging in...' : 'Login to Dashboard'}
-              </button>
-              {token && (
-                <div className="p-3 bg-green-900/30 border border-green-700 rounded-lg text-green-400 text-xs truncate">
-                  Token: {token}
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="bg-gray-800 p-6 rounded-xl border border-gray-700">
-            <h2 className="text-xl font-semibold mb-4 text-blue-400">Request Configuration</h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">User ID</label>
-                <input
-                  type="text"
-                  value={userId}
-                  onChange={(e) => setUserId(e.target.value)}
-                  className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Tenant ID (Multi-tenancy)</label>
-                <select
-                  value={tenantId}
-                  onChange={(e) => setTenantId(e.target.value)}
-                  className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
-                >
-                  <option value="tenant-a">Tenant A (Retail)</option>
-                  <option value="tenant-b">Tenant B (Enterprise)</option>
-                  <option value="tenant-c">Tenant C (Public)</option>
-                </select>
-              </div>
-              <button
-                onClick={testApi}
-                disabled={loading}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors disabled:opacity-50"
-              >
-                {loading ? 'Testing...' : 'Test Microservices Flow'}
-              </button>
-            </div>
-          </div>
-
-          <div className="bg-gray-800 p-6 rounded-xl border border-gray-700">
-            <h2 className="text-xl font-semibold mb-4 text-purple-400">Register New User</h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Email</label>
-                <input
-                  type="email"
-                  value={regEmail}
-                  onChange={(e) => setRegEmail(e.target.value)}
-                  className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500 outline-none"
-                  placeholder="user@example.com"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Password</label>
-                <input
-                  type="password"
-                  value={regPassword}
-                  onChange={(e) => setRegPassword(e.target.value)}
-                  className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500 outline-none"
-                  placeholder="••••••••"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Assign to Tenant</label>
-                <select
-                  value={regTenantId}
-                  onChange={(e) => setRegTenantId(e.target.value)}
-                  className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500 outline-none"
-                >
-                  <option value="tenant-a">Tenant A (Retail)</option>
-                  <option value="tenant-b">Tenant B (Enterprise)</option>
-                  <option value="tenant-c">Tenant C (Public)</option>
-                </select>
-              </div>
-              <button
-                onClick={registerUser}
-                disabled={loading}
-                className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg transition-colors disabled:opacity-50"
-              >
-                {loading ? 'Registering...' : 'Register User'}
-              </button>
-            </div>
-          </div>
-
-          <div className="bg-gray-800 p-6 rounded-xl border border-gray-700">
-            <h2 className="text-xl font-semibold mb-4 text-green-400">Create New Tenant</h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Tenant Name</label>
-                <input
-                  type="text"
-                  value={newTenantName}
-                  onChange={(e) => setNewTenantName(e.target.value)}
-                  className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-500 outline-none"
-                  placeholder="Acme Corp"
-                />
-              </div>
-              <button
-                onClick={createTenant}
-                disabled={loading}
-                className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition-colors disabled:opacity-50"
-              >
-                {loading ? 'Creating...' : 'Create Tenant'}
-              </button>
-            </div>
-          </div>
+          <p className="text-xl text-slate-500 max-w-2xl mx-auto leading-relaxed">
+            High-performance infrastructure for distributed workloads.
+            Handle millions of records with horizontal scalability and precision.
+          </p>
         </div>
 
-        <div className="mt-8 grid grid-cols-1 gap-8">
-          <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 min-h-[200px] flex flex-col">
-            <h2 className="text-xl font-semibold mb-4">Response Explorer</h2>
-            <div className="flex-1 bg-gray-950 rounded-lg p-4 font-mono text-sm overflow-auto">
-              {result ? (
-                <pre className="text-green-400">{JSON.stringify(result, null, 2)}</pre>
-              ) : (
-                <p className="text-gray-600 italic">No request sent yet. Results will appear here...</p>
-              )}
+        {/* Portal Selection */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl">
+          {/* Super Admin - Focus on System Integrity */}
+          <Link href="/auth/super-admin/login" className="group">
+            <div className="relative h-full bg-white/40 backdrop-blur-xl border border-white/60 rounded-[2.5rem] p-10 flex flex-col items-start transition-all hover:border-blue-500/40 hover:bg-white/60 hover:shadow-[0_20px_50px_rgba(37,99,235,0.1)] overflow-hidden">
+              <div className="absolute top-0 right-0 p-8 text-blue-500/5 group-hover:text-blue-500/10 transition-colors">
+                <span className="text-9xl font-black">SA</span>
+              </div>
+
+              <div className="w-16 h-16 bg-blue-600/5 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-blue-600 group-hover:shadow-[0_10px_30px_rgba(37,99,235,0.3)] transition-all duration-500 scale-110 group-hover:rotate-12">
+                <span className="text-3xl">🛡️</span>
+              </div>
+
+              <h2 className="text-3xl font-bold text-slate-900 mb-4 group-hover:text-blue-600 transition-colors">Infrastructure Control</h2>
+              <p className="text-slate-500 text-lg leading-snug mb-8">
+                Access the system core. Manage global tenants, monitor real-time node logs, and oversee entire infrastructure health.
+              </p>
+
+              <div className="mt-auto flex items-center text-blue-400 font-bold group-hover:translate-x-2 transition-transform">
+                Enter Command Center <span className="ml-2">→</span>
+              </div>
             </div>
-          </div>
+          </Link>
+
+          {/* Tenant Portal - Focus on Organization Management */}
+          <Link href="/auth/login" className="group">
+            <div className="relative h-full bg-white/40 backdrop-blur-xl border border-white/60 rounded-[2.5rem] p-10 flex flex-col items-start transition-all hover:border-emerald-500/40 hover:bg-white/60 hover:shadow-[0_20px_50px_rgba(16,185,129,0.1)] overflow-hidden">
+              <div className="absolute top-0 right-0 p-8 text-emerald-500/5 group-hover:text-emerald-500/10 transition-colors">
+                <span className="text-9xl font-black">TP</span>
+              </div>
+
+              <div className="w-16 h-16 bg-emerald-600/5 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-emerald-600 group-hover:shadow-[0_10px_30px_rgba(16,185,129,0.3)] transition-all duration-500 scale-110 group-hover:-rotate-12">
+                <span className="text-3xl">🏢</span>
+              </div>
+
+              <h2 className="text-3xl font-bold text-slate-900 mb-4 group-hover:text-emerald-600 transition-colors">Tenant Dashboard</h2>
+              <p className="text-slate-500 text-lg leading-snug mb-8">
+                Empower your organization. Manage your dedicated workspace, configure custom settings, and engage with your users.
+              </p>
+
+              <div className="mt-auto flex items-center text-emerald-400 font-bold group-hover:translate-x-2 transition-transform">
+                Launch Workspace <span className="ml-2">→</span>
+              </div>
+            </div>
+          </Link>
         </div>
 
-        <section className="mt-12 text-sm text-gray-500 border-t border-gray-800 pt-8">
-          <h3 className="uppercase tracking-wider font-bold mb-4">System Architecture Status</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-green-500"></span>
-              <span>API Gateway (NestJS)</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-green-500"></span>
-              <span>Auth Service (gRPC)</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-green-500"></span>
-              <span>Users Service (gRPC)</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-              <span>RabbitMQ (Queued)</span>
-            </div>
+        {/* Footer */}
+        <div className="mt-32 pt-12 border-t border-slate-800/50 w-full text-center">
+          <div className="flex justify-center space-x-8 mb-8 grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all duration-500">
+            <span className="text-sm font-bold tracking-widest uppercase">Kubernetes Ready</span>
+            <span className="text-sm font-bold tracking-widest uppercase">OAuth 2.0 Secure</span>
+            <span className="text-sm font-bold tracking-widest uppercase">Edge Optimized</span>
           </div>
-        </section>
+          <p className="text-slate-600 text-sm">
+            &copy; 2026 Scale System Architecture. High-Concurrency Distributed Infrastructure.
+          </p>
+        </div>
       </div>
     </div>
   );

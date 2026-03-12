@@ -1,32 +1,55 @@
-import { Controller } from '@nestjs/common';
+import { Controller, UseInterceptors } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
 import { UsersService } from './users.service';
+import { GrpcCorrelationInterceptor } from '@common/common/interceptors/correlation.interceptor';
 
 @Controller()
+@UseInterceptors(GrpcCorrelationInterceptor)
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
   @GrpcMethod('UsersService', 'GetUser')
-  async getUser(data: any) {
-    console.log('Users service received GetUser request:', data);
-    // Publish an event to RabbitMQ when a user is fetched (just for demo)
-    this.usersService.publishUserFetched(data.userId);
+  async getUser(data: any, metadata: any) {
+    try {
+      console.log('Users microservice GetUser starting for:', data.userId);
+      const correlationId = metadata.get('x-correlation-id')?.[0];
+      const user = await this.usersService.getUser(data.userId, data.tenantId);
 
-    return {
-      id: data.userId,
-      email: 'user@example.com',
-      tenantId: (data as any).tenantId || 'unknown',
-    };
+      console.log('Users microservice GetUser result:', user ? 'User Found' : 'User Not Found');
+
+      // Publish event
+      this.usersService.publishUserFetched(data.userId, correlationId);
+
+      return user || {};
+    } catch (e) {
+      console.error('CRASH in UsersController.getUser:', e.message, e.stack);
+      throw e;
+    }
   }
 
   @GrpcMethod('UsersService', 'CreateUser')
-  async createUser(data: any) {
-    console.log('Users service creating user record:', data);
-    // In real app, save to users DB. For now return data.
+  async createUser(data: any, metadata: any) {
+    const correlationId = metadata.get('x-correlation-id')?.[0];
+    const user = await this.usersService.createUser(data);
+
+    this.usersService.publishUserFetched(user.id, correlationId);
+
     return {
-      userId: data.userId,
-      email: data.email,
-      tenantId: data.tenantId,
+      userId: user.id,
+      email: user.email,
+      tenantId: user.tenantId,
     };
+  }
+
+  @GrpcMethod('UsersService', 'UpdateProfile')
+  async updateProfile(data: any) {
+    const { userId, tenantId, ...updateData } = data;
+    return this.usersService.updateProfile(userId, tenantId, updateData);
+  }
+
+  @GrpcMethod('UsersService', 'ListUsers')
+  async listUsers(data: { tenantId: string }) {
+    const users = await this.usersService.listUsers(data.tenantId);
+    return { users };
   }
 }

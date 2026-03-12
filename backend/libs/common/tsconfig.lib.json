@@ -10,6 +10,7 @@
         "sourceMap": true,
         "outDir": "../../dist/libs/common",
         "baseUrl": "./",
+        "esModuleInterop": true,
         "types": []
     },
     "exclude": [
